@@ -11,3 +11,13 @@ val Bitboards.blackPieces: Long
 
 val Bitboards.occupied: Long
     get() = whitePieces or blackPieces
+
+
+inline fun forEachSetBit(bits: Long, action: (Int) -> Unit) {
+    var b = bits
+    while (b != 0L) {
+        val index = b.countTrailingZeroBits()
+        action(index)
+        b = b xor (1L shl index) // clear that bit
+    }
+}
