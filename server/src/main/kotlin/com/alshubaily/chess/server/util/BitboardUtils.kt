@@ -21,3 +21,16 @@ inline fun forEachSetBit(bits: Long, action: (Int) -> Unit) {
         b = b xor (1L shl index) // clear that bit
     }
 }
+
+fun shift(bb: Long, amount: Int): Long =
+    when {
+        amount > 0 -> bb shl amount
+        amount < 0 -> bb ushr -amount
+        else -> bb
+    }
+
+fun index(file: Char, rank: Int): Int {
+    require(file in 'A'..'H') { "Invalid file: $file" }
+    require(rank in 1..8) { "Invalid rank: $rank" }
+    return (rank - 1) * 8 + (file.uppercaseChar() - 'A')
+}

@@ -22,4 +22,14 @@ class BitboardUtilsTest {
     fun `occupied bit count is 32`() {
         assertEquals(32, board.occupied.countOneBits())
     }
+
+    @Test
+    fun `index maps chess squares to correct bitboard indices`() {
+        assertEquals(0, index('A', 1))
+        assertEquals(7, index('H', 1))
+        assertEquals(56, index('A', 8))
+        assertEquals(63, index('H', 8))
+        assertEquals(27, index('D', 4))
+        assertEquals(36, index('E', 5))
+    }
 }
