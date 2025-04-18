@@ -5,7 +5,7 @@ import com.alshubaily.chess.server.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class HorseMoveGeneratorTest {
+class HorseMoveGeneratorTests {
 
     @Test
     fun `horse in center has 8 moves`() {

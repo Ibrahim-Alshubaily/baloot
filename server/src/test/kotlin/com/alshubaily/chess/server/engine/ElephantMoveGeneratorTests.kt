@@ -5,7 +5,7 @@ import com.alshubaily.chess.server.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ElephantMoveGeneratorTest {
+class ElephantMoveGeneratorTests {
 
     @Test
     fun `elephant in center generates full diagonal moves`() {

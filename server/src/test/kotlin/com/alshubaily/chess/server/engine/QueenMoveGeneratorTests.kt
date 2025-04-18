@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class QueenMoveGeneratorTest {
+class QueenMoveGeneratorTests {
 
     @Test
     fun `queen in center generates full rank, file, and diagonal moves`() {
