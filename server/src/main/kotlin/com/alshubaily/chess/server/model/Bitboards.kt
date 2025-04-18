@@ -1,6 +1,5 @@
 package com.alshubaily.chess.server.model
 
-
 data class Bitboards(
     val whitePawns: Long = 0L,
     val whiteKnights: Long = 0L,
@@ -16,7 +15,6 @@ data class Bitboards(
     val blackQueens: Long = 0L,
     val blackKing: Long = 0L
 )
-
 
 fun initialBitboards(): Bitboards = Bitboards(
     whitePawns   = (8..15).fold(0L) { acc, i -> acc or (1L shl i) },
