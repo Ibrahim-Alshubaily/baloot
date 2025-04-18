@@ -5,7 +5,7 @@ import com.alshubaily.chess.server.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class PawnMoveGeneratorTest {
+class PawnMoveGeneratorTests {
 
     @Test
     fun `initial position has 16 pawn moves per side`() {
