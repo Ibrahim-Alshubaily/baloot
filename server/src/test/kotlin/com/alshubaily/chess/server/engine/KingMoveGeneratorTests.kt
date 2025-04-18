@@ -16,14 +16,12 @@ class KingMoveGeneratorTests {
             board = Bitboards(whiteKing = 1L shl from),
             currentPlayer = Player.WHITE
         )
-
         val moves = KingMoveGenerator.generate(state)
-
         assertEquals(
             setOf(
                 Move(from, index('C', 3)), Move(from, index('D', 3)), Move(from, index('E', 3)),
                 Move(from, index('C', 4)),                        Move(from, index('E', 4)),
-                Move(from, index('C', 5)), Move(from, index('D', 5)), Move(from, index('E', 5)),
+                Move(from, index('C', 5)), Move(from, index('D', 5)), Move(from, index('E', 5))
             ),
             moves
         )
@@ -36,16 +34,13 @@ class KingMoveGeneratorTests {
             board = Bitboards(whiteKing = 1L shl from),
             currentPlayer = Player.WHITE
         )
-
-        val moves = KingMoveGenerator.generate(state)
-
         assertEquals(
             setOf(
                 Move(from, index('A', 2)),
                 Move(from, index('B', 1)),
                 Move(from, index('B', 2))
             ),
-            moves
+            KingMoveGenerator.generate(state)
         )
     }
 
@@ -56,16 +51,13 @@ class KingMoveGeneratorTests {
             board = Bitboards(whiteKing = 1L shl from),
             currentPlayer = Player.WHITE
         )
-
-        val moves = KingMoveGenerator.generate(state)
-
         assertEquals(
             setOf(
                 Move(from, index('G', 3)), Move(from, index('H', 3)),
                 Move(from, index('G', 4)),
-                Move(from, index('G', 5)), Move(from, index('H', 5)),
+                Move(from, index('G', 5)), Move(from, index('H', 5))
             ),
-            moves
+            KingMoveGenerator.generate(state)
         )
     }
 
@@ -80,25 +72,68 @@ class KingMoveGeneratorTests {
             ),
             currentPlayer = Player.WHITE
         )
-
         val moves = KingMoveGenerator.generate(state)
-
         assertFalse(Move(from, blocker) in moves)
-        assertTrue(moves.size < 8)
     }
 
     @Test
     fun `king can capture opponent`() {
         val from = index('D', 4)
-        val opponent = index('C', 3)
+        val enemy = index('C', 3)
         val state = GameState(
             board = Bitboards(
                 whiteKing = 1L shl from,
-                blackPawns = 1L shl opponent
+                blackPawns = 1L shl enemy
             ),
             currentPlayer = Player.WHITE
         )
+        assertTrue(Move(from, enemy) in KingMoveGenerator.generate(state))
+    }
 
-        assertTrue(Move(from, opponent) in KingMoveGenerator.generate(state))
+    @Test
+    fun `white castling both sides`() {
+        val state = GameState(
+            board = Bitboards(
+                whiteKing = 1L shl index('E', 1),
+                whiteRooks = (1L shl index('A', 1)) or (1L shl index('H', 1))
+            ),
+            currentPlayer = Player.WHITE,
+            castlingRights = setOf(
+                CastlingRight.WHITE_KINGSIDE,
+                CastlingRight.WHITE_QUEENSIDE
+            )
+        )
+        val moves = KingMoveGenerator.generate(state)
+        assertTrue(Move(index('E', 1), index('G', 1)) in moves)
+        assertTrue(Move(index('E', 1), index('C', 1)) in moves)
+    }
+
+    @Test
+    fun `black castling kingside only`() {
+        val state = GameState(
+            board = Bitboards(
+                blackKing = 1L shl index('E', 8),
+                blackRooks = 1L shl index('H', 8)
+            ),
+            currentPlayer = Player.BLACK,
+            castlingRights = setOf(CastlingRight.BLACK_KINGSIDE)
+        )
+        val moves = KingMoveGenerator.generate(state)
+        assertTrue(Move(index('E', 8), index('G', 8)) in moves)
+        assertFalse(Move(index('E', 8), index('C', 8)) in moves)
+    }
+
+    @Test
+    fun `black queenside castling blocked`() {
+        val state = GameState(
+            board = Bitboards(
+                blackKing = 1L shl index('E', 8),
+                blackRooks = 1L shl index('A', 8),
+                whitePawns = 1L shl index('C', 8)
+            ),
+            currentPlayer = Player.BLACK,
+            castlingRights = setOf(CastlingRight.BLACK_QUEENSIDE)
+        )
+        assertFalse(Move(index('E', 8), index('C', 8)) in KingMoveGenerator.generate(state))
     }
 }

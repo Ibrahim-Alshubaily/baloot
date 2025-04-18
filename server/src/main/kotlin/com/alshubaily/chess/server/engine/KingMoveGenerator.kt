@@ -37,6 +37,27 @@ object KingMoveGenerator {
             moves.add(Move(from, to))
         }
 
+        generateCastling(state, from, moves)
+
         return moves
     }
+
+    private fun generateCastling(state: GameState, from: Int, moves: MutableSet<Move>) {
+        val occupied = state.board.occupied
+
+        fun tryCastle(right: CastlingRight, clearMask: Long, to: Int) {
+            if (right in state.castlingRights && (occupied and clearMask) == 0L) {
+                moves.add(Move(from, to))
+            }
+        }
+
+        if (state.currentPlayer == Player.WHITE) {
+            tryCastle(CastlingRight.WHITE_KINGSIDE, 0x60L, index('G', 1))
+            tryCastle(CastlingRight.WHITE_QUEENSIDE, 0x0EL, index('C', 1))
+        } else {
+            tryCastle(CastlingRight.BLACK_KINGSIDE, 0x6000000000000000L, index('G', 8))
+            tryCastle(CastlingRight.BLACK_QUEENSIDE, 0x0E00000000000000L, index('C', 8))
+        }
+    }
+
 }
