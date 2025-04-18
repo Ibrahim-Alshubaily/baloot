@@ -16,7 +16,7 @@ object PawnMoveGenerator {
         val opponentPieces = if (state.currentPlayer == Player.WHITE) state.board.blackPieces else state.board.whitePieces
 
         generateForwardPushes(pawns, empty, forward, startRank, moves)
-        generateCaptures(pawns, opponentPieces, state.currentPlayer, moves)
+        generateCaptures(pawns, opponentPieces, state.currentPlayer, state.enCroissantSquare, moves)
         return moves
     }
 
@@ -44,6 +44,7 @@ object PawnMoveGenerator {
         pawns: Long,
         opponentPieces: Long,
         player: Player,
+        enCroissantSquare: Int?,
         moves: MutableSet<Move>
     ) {
         val sign = if (player == Player.WHITE) 1 else -1
@@ -56,6 +57,17 @@ object PawnMoveGenerator {
 
         generateCapture(pawns, opponentPieces, leftShift, leftMask, moves)
         generateCapture(pawns, opponentPieces, rightShift, rightMask, moves)
+
+        enCroissantSquare?.let { target ->
+            val fromLeft = target - leftShift
+            val fromRight = target - rightShift
+
+            if ((pawns and leftMask.inv()) and (1L shl fromLeft) != 0L)
+                moves.add(Move(fromLeft, target))
+
+            if ((pawns and rightMask.inv()) and (1L shl fromRight) != 0L)
+                moves.add(Move(fromRight, target))
+        }
     }
 
 

@@ -117,4 +117,52 @@ class PawnMoveGeneratorTest {
             moves
         )
     }
+
+    @Test
+    fun `white pawn consumes en croissant`() {
+        val from = index('E', 5)
+        val enCroissant = index('D', 6)
+        val captured = index('D', 5)
+        val forwardBlock = index('E', 6)
+
+        val state = GameState(
+            board = Bitboards(
+                whitePawns = 1L shl from,
+                blackPawns = (1L shl captured) or (1L shl forwardBlock)
+            ),
+            currentPlayer = Player.WHITE,
+            enCroissantSquare = enCroissant
+        )
+
+        val moves = PawnMoveGenerator.generate(state)
+
+        assertEquals(
+            setOf(Move(from, enCroissant)),
+            moves
+        )
+    }
+
+    @Test
+    fun `black pawn consumes en croissant`() {
+        val from = index('E', 4)
+        val enCroissant = index('F', 3)
+        val captured = index('F', 4)
+        val forwardBlock = index('E', 3)
+
+        val state = GameState(
+            board = Bitboards(
+                blackPawns = 1L shl from,
+                whitePawns = (1L shl captured) or (1L shl forwardBlock)
+            ),
+            currentPlayer = Player.BLACK,
+            enCroissantSquare = enCroissant
+        )
+
+        val moves = PawnMoveGenerator.generate(state)
+
+        assertEquals(
+            setOf(Move(from, enCroissant)),
+            moves
+        )
+    }
 }
