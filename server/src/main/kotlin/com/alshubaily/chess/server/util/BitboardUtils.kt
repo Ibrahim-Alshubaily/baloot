@@ -12,6 +12,11 @@ val Bitboards.blackPieces: Long
 val Bitboards.occupied: Long
     get() = whitePieces or blackPieces
 
+fun rank(square: Int): Int = square / 8
+fun file(square: Int): Int = square % 8
+
+fun onSameDiagonal(a: Int, b: Int): Boolean =
+    kotlin.math.abs(rank(a) - rank(b)) == kotlin.math.abs(file(a) - file(b))
 
 inline fun forEachSetBit(bits: Long, action: (Int) -> Unit) {
     var b = bits
