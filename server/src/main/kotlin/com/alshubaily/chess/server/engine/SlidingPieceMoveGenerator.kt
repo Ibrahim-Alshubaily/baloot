@@ -38,4 +38,15 @@ object SlidingPieceMoveGenerator {
         val own = if (state.currentPlayer == Player.WHITE) state.board.whitePieces else state.board.blackPieces
         return generateSlidingMoves(rooks, STRAIGHT_RAYS, own, state.board.occupied)
     }
+
+    fun generateQueenMoves(state: GameState): Set<Move> {
+        val queens = if (state.currentPlayer == Player.WHITE) state.board.whiteQueens else state.board.blackQueens
+        val own = if (state.currentPlayer == Player.WHITE) state.board.whitePieces else state.board.blackPieces
+        val occupied = state.board.occupied
+
+        val diagonals = generateSlidingMoves(queens, DIAGONAL_RAYS, own, occupied)
+        val straights = generateSlidingMoves(queens, STRAIGHT_RAYS, own, occupied)
+
+        return diagonals + straights
+    }
 }

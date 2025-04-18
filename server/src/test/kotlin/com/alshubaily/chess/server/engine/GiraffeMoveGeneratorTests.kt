@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class GiraffeMoveGeneratorTest {
+class GiraffeMoveGeneratorTests {
 
     @Test
     fun `giraffe in center moves along rank and file`() {
