@@ -15,7 +15,7 @@ class ElephantMoveGeneratorTest {
             currentPlayer = Player.WHITE
         )
 
-        val moves = ElephantMoveGenerator.generate(state)
+        val moves = SlidingPieceMoveGenerator.generateElephantMoves(state)
 
         assertEquals(
             setOf(
@@ -51,7 +51,7 @@ class ElephantMoveGeneratorTest {
             currentPlayer = Player.WHITE
         )
 
-        val moves = ElephantMoveGenerator.generate(state)
+        val moves = SlidingPieceMoveGenerator.generateElephantMoves(state)
 
         assert(!moves.contains(Move(from, blocker)))
         assert(!moves.contains(Move(from, index('G', 7))))
@@ -69,7 +69,7 @@ class ElephantMoveGeneratorTest {
             currentPlayer = Player.WHITE
         )
 
-        val moves = ElephantMoveGenerator.generate(state)
+        val moves = SlidingPieceMoveGenerator.generateElephantMoves(state)
 
         assert(moves.contains(Move(from, target)))
         assert(!moves.contains(Move(from, index('G', 7))))
@@ -83,7 +83,7 @@ class ElephantMoveGeneratorTest {
             currentPlayer = Player.WHITE
         )
 
-        val moves = ElephantMoveGenerator.generate(state)
+        val moves = SlidingPieceMoveGenerator.generateElephantMoves(state)
 
         assertEquals(
             setOf(
