@@ -27,6 +27,10 @@ object SlidingPieceMoveGenerator {
         mask
     }
 
+    val QUEEN_RAYS : Array<Long> = Array(64) { from ->
+        STRAIGHT_RAYS[from] or DIAGONAL_RAYS[from]
+    }
+
     fun generateElephantMoves(state: GameState): Set<Move> {
         val bishops = if (state.currentPlayer == Player.WHITE) state.board.whiteBishops else state.board.blackBishops
         val own = if (state.currentPlayer == Player.WHITE) state.board.whitePieces else state.board.blackPieces
@@ -42,11 +46,6 @@ object SlidingPieceMoveGenerator {
     fun generateQueenMoves(state: GameState): Set<Move> {
         val queens = if (state.currentPlayer == Player.WHITE) state.board.whiteQueens else state.board.blackQueens
         val own = if (state.currentPlayer == Player.WHITE) state.board.whitePieces else state.board.blackPieces
-        val occupied = state.board.occupied
-
-        val diagonals = generateSlidingMoves(queens, DIAGONAL_RAYS, own, occupied)
-        val straights = generateSlidingMoves(queens, STRAIGHT_RAYS, own, occupied)
-
-        return diagonals + straights
+        return generateSlidingMoves(queens, QUEEN_RAYS, own, state.board.occupied)
     }
 }
