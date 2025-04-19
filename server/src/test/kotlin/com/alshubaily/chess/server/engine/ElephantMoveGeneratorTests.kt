@@ -8,6 +8,16 @@ import kotlin.test.assertEquals
 class ElephantMoveGeneratorTests {
 
     @Test
+    fun `initial position has 0 elephant moves`() {
+        val whiteState = GameState(initialBitboards(), Player.WHITE)
+        val blackState = GameState(initialBitboards(), Player.BLACK)
+
+        assertEquals(0, SlidingPieceMoveGenerator.generateElephantMoves(whiteState).size)
+        val a = SlidingPieceMoveGenerator.generateElephantMoves(blackState)
+        assertEquals(0, SlidingPieceMoveGenerator.generateElephantMoves(blackState).size)
+    }
+
+    @Test
     fun `elephant in center generates full diagonal moves`() {
         val from = index('D', 4)
         val state = GameState(

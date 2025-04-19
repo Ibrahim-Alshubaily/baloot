@@ -10,6 +10,15 @@ import kotlin.test.assertTrue
 class KingMoveGeneratorTests {
 
     @Test
+    fun `initial position has 0 King moves`() {
+        val whiteState = GameState(initialBitboards(), Player.WHITE)
+        val blackState = GameState(initialBitboards(), Player.BLACK)
+
+        assertEquals(0, KingMoveGenerator.generate(whiteState).size)
+        assertEquals(0, KingMoveGenerator.generate(blackState).size)
+    }
+
+    @Test
     fun `king in center has 8 moves`() {
         val from = index('D', 4)
         val state = GameState(

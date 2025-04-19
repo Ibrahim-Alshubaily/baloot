@@ -10,6 +10,15 @@ import kotlin.test.assertTrue
 class GiraffeMoveGeneratorTests {
 
     @Test
+    fun `initial position has 0 giraffe moves`() {
+        val whiteState = GameState(initialBitboards(), Player.WHITE)
+        val blackState = GameState(initialBitboards(), Player.BLACK)
+
+        assertEquals(0, SlidingPieceMoveGenerator.generateGiraffeMoves(whiteState).size)
+        assertEquals(0, SlidingPieceMoveGenerator.generateGiraffeMoves(blackState).size)
+    }
+
+    @Test
     fun `giraffe in center moves along rank and file`() {
         val from = index('D', 4)
         val state = GameState(

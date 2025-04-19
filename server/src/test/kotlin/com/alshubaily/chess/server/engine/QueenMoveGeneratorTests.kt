@@ -10,6 +10,15 @@ import kotlin.test.assertTrue
 class QueenMoveGeneratorTests {
 
     @Test
+    fun `initial position has 0 queen moves`() {
+        val whiteState = GameState(initialBitboards(), Player.WHITE)
+        val blackState = GameState(initialBitboards(), Player.BLACK)
+
+        assertEquals(0, SlidingPieceMoveGenerator.generateQueenMoves(whiteState).size)
+        assertEquals(0, SlidingPieceMoveGenerator.generateQueenMoves(blackState).size)
+    }
+
+    @Test
     fun `queen in center generates full rank, file, and diagonal moves`() {
         val from = index('D', 4)
         val state = GameState(
