@@ -13,7 +13,6 @@ class ElephantMoveGeneratorTests {
         val blackState = GameState(initialBitboards(), Player.BLACK)
 
         assertEquals(0, SlidingPieceMoveGenerator.generateElephantMoves(whiteState).size)
-        val a = SlidingPieceMoveGenerator.generateElephantMoves(blackState)
         assertEquals(0, SlidingPieceMoveGenerator.generateElephantMoves(blackState).size)
     }
 
