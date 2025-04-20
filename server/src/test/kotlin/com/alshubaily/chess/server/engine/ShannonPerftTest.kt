@@ -16,15 +16,14 @@ class ShannonPerftTest {
     }
 
     @Test
-    fun `shannon perft depths`() {
+    fun `shannon perft tests`() {
         val expected = mapOf(
             1 to 20L,
             2 to 400L,
-            3 to 8902L,
-            4 to 197281L,
-//            Expected :4865609
-//            Actual   :4865351
-//            5 to 4865609L, fails (prally makeMove(en croissant)
+            3 to 8_902L,
+            4 to 197_281L,
+            5 to 4_865_609L,
+            6 to 119_060_324L
         )
 
         val initial = GameState(initialBitboards())
