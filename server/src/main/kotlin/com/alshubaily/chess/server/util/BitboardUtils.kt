@@ -12,6 +12,12 @@ val Bitboards.blackPieces: Long
 val Bitboards.occupied: Long
     get() = whitePieces or blackPieces
 
+fun Long.move(from: Long, to: Long): Long =
+    if ((this and from) != 0L) (this xor from) or to else this
+
+fun Long.capture(to: Long): Long =
+    this and to.inv()
+
 fun rank(square: Int): Int = square / 8
 fun file(square: Int): Int = square % 8
 
@@ -23,7 +29,7 @@ inline fun forEachSetBit(bits: Long, action: (Int) -> Unit) {
     while (b != 0L) {
         val index = b.countTrailingZeroBits()
         action(index)
-        b = b xor (1L shl index) // clear that bit
+        b = b xor (1L shl index)
     }
 }
 
