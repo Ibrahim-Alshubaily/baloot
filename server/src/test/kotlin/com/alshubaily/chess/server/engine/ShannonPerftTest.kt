@@ -2,6 +2,7 @@ package com.alshubaily.chess.server.engine
 
 import com.alshubaily.chess.server.model.GameState
 import com.alshubaily.chess.server.model.initialBitboards
+import com.alshubaily.chess.server.model.initialGameState
 import com.alshubaily.chess.server.util.makeMove
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,13 +24,13 @@ class ShannonPerftTest {
             3 to 8_902L,
             4 to 197_281L,
             5 to 4_865_609L,
-            6 to 119_060_324L
+            6 to 119_060_324L,
+//            7 to 3_195_901_860,
         )
 
-        val initial = GameState(initialBitboards())
-
+        val state = initialGameState()
         for ((depth, expectedCount) in expected) {
-            val actual = perft(initial, depth)
+            val actual = perft(state, depth)
             assertEquals(expectedCount, actual, "Failed at depth $depth")
         }
     }

@@ -6,7 +6,6 @@ import com.alshubaily.chess.server.util.makeMove
 object MoveGenerator {
 
     fun generateLegalMoves(state: GameState): Set<Move> {
-        // TODO: validate castling
         return generate(state).filter { move ->
             val next = makeMove(state, move)
             !isKingInCheck(next, state.currentPlayer)

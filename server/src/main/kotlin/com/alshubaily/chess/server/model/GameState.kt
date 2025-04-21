@@ -6,3 +6,8 @@ data class GameState(
     val castlingRights: Set<CastlingRight> = emptySet(),
     val enCroissantSquare: Int? = null
 )
+
+fun initialGameState(): GameState = GameState(
+    board = initialBitboards(),
+    castlingRights = initialCastlingRights(),
+)

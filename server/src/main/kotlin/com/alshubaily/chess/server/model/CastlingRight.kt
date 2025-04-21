@@ -6,3 +6,10 @@ enum class CastlingRight {
     BLACK_KINGSIDE,
     BLACK_QUEENSIDE
 }
+
+fun initialCastlingRights(): Set<CastlingRight> = setOf(
+    CastlingRight.WHITE_KINGSIDE,
+    CastlingRight.WHITE_QUEENSIDE,
+    CastlingRight.BLACK_KINGSIDE,
+    CastlingRight.BLACK_QUEENSIDE
+)

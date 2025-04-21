@@ -1,6 +1,7 @@
 package com.alshubaily.chess.server.util
 
 import com.alshubaily.chess.server.constants.FORWARD
+import com.alshubaily.chess.server.engine.MoveGenerator
 import com.alshubaily.chess.server.model.Bitboards
 import com.alshubaily.chess.server.model.GameState
 import com.alshubaily.chess.server.model.Move
@@ -8,18 +9,25 @@ import com.alshubaily.chess.server.model.Player
 import kotlin.math.abs
 
 fun makeMove(state: GameState, move: Move): GameState {
-    // TODO: handle castle moves
     val fromBit = 1L shl move.from
     val toBit = 1L shl move.to
     val b = state.board
     val isWhite = state.currentPlayer == Player.WHITE
-    val isPawn = (state.board.whitePawns and fromBit != 0L) or (state.board.blackPawns and fromBit != 0L)
+    val isPawn = (b.whitePawns and fromBit != 0L) || (b.blackPawns and fromBit != 0L)
+    val isKing = (b.whiteKing and fromBit != 0L) || (b.blackKing and fromBit != 0L)
+
+    var whiteRooks = b.whiteRooks
+    var blackRooks = b.blackRooks
+    if (isKing && abs(move.from - move.to) == 2) {
+        val movedRooks = handleCastling(state, move)
+        if (isWhite) whiteRooks = movedRooks else blackRooks = movedRooks
+    }
 
     val allPieces = listOf(
         b.whitePawns, b.whiteKnights, b.whiteBishops,
-        b.whiteRooks, b.whiteQueens, b.whiteKing,
+        whiteRooks, b.whiteQueens, b.whiteKing,
         b.blackPawns, b.blackKnights, b.blackBishops,
-        b.blackRooks, b.blackQueens, b.blackKing
+        blackRooks, b.blackQueens, b.blackKing
     )
 
     val capturedPosition = getCapturedPosition(state, move)
@@ -42,7 +50,6 @@ fun makeMove(state: GameState, move: Move): GameState {
     )
 }
 
-
 fun applyMove(
     allPieces: List<Long>,
     isWhite: Boolean,
@@ -50,12 +57,13 @@ fun applyMove(
     toBit: Long,
     capturedBit: Long
 ): List<Long> {
-    if (isWhite) {
-        return allPieces.subList(0, 6).map { it.move(fromBit, toBit) } +
+    return if (isWhite) {
+        allPieces.subList(0, 6).map { it.move(fromBit, toBit) } +
                 allPieces.subList(6, 12).map { it.capture(capturedBit) }
+    } else {
+        allPieces.subList(0, 6).map { it.capture(capturedBit) } +
+                allPieces.subList(6, 12).map { it.move(fromBit, toBit) }
     }
-    return allPieces.subList(0, 6).map { it.capture(capturedBit) } +
-            allPieces.subList(6, 12).map { it.move(fromBit, toBit) }
 }
 
 fun getCapturedPosition(state : GameState, move: Move): Int {
@@ -75,4 +83,22 @@ fun getCapturedPosition(state : GameState, move: Move): Int {
         move.to + FORWARD
     }
 
+}
+
+fun getAttackedPositions(state: GameState): Set<Int> {
+    return MoveGenerator.generate(state).mapTo(HashSet()) { it.to }
+}
+
+fun handleCastling(state: GameState, move: Move): Long {
+    val isWhite = state.currentPlayer == Player.WHITE
+    val (rookFrom, rookTo) = when {
+        isWhite && move.to == 6  -> 7 to 5
+        isWhite && move.to == 2  -> 0 to 3
+        !isWhite && move.to == 62 -> 63 to 61
+        !isWhite && move.to == 58 -> 56 to 59
+        else -> return 0L
+    }
+
+    val current = if (isWhite) state.board.whiteRooks else state.board.blackRooks
+    return (current xor (1L shl rookFrom)) or (1L shl rookTo)
 }

@@ -28,6 +28,10 @@ object KingMoveGenerator {
         val king = if (state.currentPlayer == Player.WHITE) state.board.whiteKing else state.board.blackKing
         val ownPieces = if (state.currentPlayer == Player.WHITE) state.board.whitePieces else state.board.blackPieces
 
+        if (king == 0L) {
+            return emptySet()
+        }
+
         val moves = mutableSetOf<Move>()
 
         val from = king.countTrailingZeroBits()
@@ -43,21 +47,48 @@ object KingMoveGenerator {
     }
 
     private fun generateCastling(state: GameState, from: Int, moves: MutableSet<Move>) {
-        val occupied = state.board.occupied
 
-        fun tryCastle(right: CastlingRight, clearMask: Long, to: Int) {
-            if (right in state.castlingRights && (occupied and clearMask) == 0L) {
-                moves.add(Move(from, to))
-            }
+        fun tryCastle(right: CastlingRight, clearMask: Long, path: List<Int>, to: Int) {
+            if (right !in state.castlingRights) return
+            if ((state.board.occupied and clearMask) != 0L) return
+
+            val attackedSquares = getAttackedPositions(
+                state.copy(
+                    currentPlayer = state.currentPlayer.opponent(),
+                    castlingRights = emptySet()
+                )
+            )
+            if (path.any { it in attackedSquares }) return
+
+            moves.add(Move(from, to))
         }
 
         if (state.currentPlayer == Player.WHITE) {
-            tryCastle(CastlingRight.WHITE_KINGSIDE, 0x60L, index('G', 1))
-            tryCastle(CastlingRight.WHITE_QUEENSIDE, 0x0EL, index('C', 1))
+            tryCastle(
+                CastlingRight.WHITE_KINGSIDE,
+                0x60L,
+                listOf(index('E', 1), index('F', 1), index('G', 1)),
+                index('G', 1)
+            )
+            tryCastle(
+                CastlingRight.WHITE_QUEENSIDE,
+                0x0EL,
+                listOf(index('E', 1), index('D', 1), index('C', 1)),
+                index('C', 1)
+            )
         } else {
-            tryCastle(CastlingRight.BLACK_KINGSIDE, 0x6000000000000000L, index('G', 8))
-            tryCastle(CastlingRight.BLACK_QUEENSIDE, 0x0E00000000000000L, index('C', 8))
+            tryCastle(
+                CastlingRight.BLACK_KINGSIDE,
+                0x6000000000000000L,
+                listOf(index('E', 8), index('F', 8), index('G', 8)),
+                index('G', 8)
+            )
+            tryCastle(
+                CastlingRight.BLACK_QUEENSIDE,
+                0x0E00000000000000L,
+                listOf(index('E', 8), index('D', 8), index('C', 8)),
+                index('C', 8)
+            )
         }
     }
-
 }
