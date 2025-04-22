@@ -32,7 +32,7 @@ dependencies {
     implementation("com.github.luben:zstd-jni:1.5.5-11")
 
     implementation("org.postgresql:postgresql:42.7.1")
-
+    implementation("org.apache.kafka:kafka-clients:3.6.0")
 
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -57,5 +57,12 @@ tasks.register<JavaExec>("runLichessLoader") {
     group = "lichess"
     description = "Run the Lichess Eval Importer from remote"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.alshubaily.chess.server.data.LichessEvalImporter")
+    mainClass.set("com.alshubaily.chess.server.data.loader.LichessEvalImporter")
+}
+
+tasks.register<JavaExec>("runChessEvaluationsPublisher") {
+    group = "lichess"
+    description = "Run the Kafka Publisher that streams chess evaluation samples"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.alshubaily.chess.server.data.publisher.ChessEvaluationsPublisher")
 }

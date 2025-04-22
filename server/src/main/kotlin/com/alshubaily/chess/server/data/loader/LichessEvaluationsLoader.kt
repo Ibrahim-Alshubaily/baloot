@@ -1,5 +1,6 @@
-package com.alshubaily.chess.server.data
+package com.alshubaily.chess.server.data.loader
 
+import com.alshubaily.chess.server.data.constants.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.luben.zstd.ZstdInputStream
 import java.io.BufferedReader
@@ -9,11 +10,7 @@ import java.sql.DriverManager
 
 object LichessEvalImporter {
 
-    private const val REMOTE_URL = "https://database.lichess.org/lichess_db_eval.jsonl.zst"
-    private const val JDBC_URL = "jdbc:postgresql://localhost:5432/chess_evaluations"
-    private const val TABLE_NAME = "lichess_evaluations"
-    private const val DB_USER = "chess_evaluations_user"
-    private const val DB_PASS = "chess_evaluations_password"
+
     @JvmStatic
     fun main(args: Array<String>) {
         streamAndInsert()
