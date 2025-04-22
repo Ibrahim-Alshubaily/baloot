@@ -29,6 +29,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("com.github.luben:zstd-jni:1.5.5-11")
+
+    implementation("org.postgresql:postgresql:42.7.1")
+
+
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
@@ -46,4 +51,11 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.register<JavaExec>("runLichessLoader") {
+    group = "lichess"
+    description = "Run the Lichess Eval Importer from remote"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.alshubaily.chess.server.data.LichessEvalImporter")
 }
