@@ -1,69 +1,60 @@
 package com.alshubaily.chess.server.data.publisher
 
-import com.alshubaily.chess.server.data.constants.*
-import com.alshubaily.chess.server.util.FenEncoder
-import org.apache.kafka.clients.admin.AdminClient
-import org.apache.kafka.clients.admin.NewTopic
+import com.alshubaily.chess.server.data.constants.DATASET_PATH
+import com.alshubaily.chess.server.data.constants.KAFKA_BOOTSTRAP
+import com.alshubaily.chess.server.data.constants.KAFKA_TOPIC
+import com.alshubaily.chess.server.util.EvalEncoder
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.luben.zstd.ZstdInputStream
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.ByteArraySerializer
-import java.sql.DriverManager
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileInputStream
+import java.io.InputStreamReader
 import java.util.Properties
 
 object ChessEvaluationsPublisher {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        truncateKafkaTopic()
+        println("Streaming from $DATASET_PATH to Kafka ($KAFKA_TOPIC)...")
 
         val producer = createKafkaProducer()
-        val conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS)
-        val stmt = conn.prepareStatement("SELECT fen, score FROM $TABLE_NAME")
-        val rs = stmt.executeQuery()
+        val mapper = ObjectMapper()
+        val fileStream = FileInputStream(File(DATASET_PATH))
+        val zis = ZstdInputStream(fileStream)
+        val reader = BufferedReader(InputStreamReader(zis))
 
         var count = 0
-        while (rs.next()) {
-            val fen = rs.getString("fen")
-            val score = rs.getInt("score")
-            val boardBytes = FenEncoder.encodeBoardFeatures(fen)
-            val scoreBytes = encodeScore(score)
-            val record = ProducerRecord(KAFKA_TOPIC, boardBytes, scoreBytes)
-            producer.send(record)
+        reader.useLines { lines ->
+            for (line in lines) {
+                val node = mapper.readTree(line)
+                val encoded = EvalEncoder.encodeFromJson(node) ?: continue
+                val (boardBytes, scoreBytes) = encoded
 
-            if (++count % 10000 == 0) println("🔍 Published $count samples...")
+                producer.send(ProducerRecord(KAFKA_TOPIC, boardBytes, scoreBytes))
+
+                if (++count % 100_000 == 0) println("\uD83D\uDCC4 Sent $count samples...")
+            }
         }
 
-        println("✅Published $count samples to Kafka.")
         producer.flush()
         producer.close()
-        stmt.close()
-        conn.close()
+        println("Done. Published $count samples.")
     }
 
-    fun createKafkaProducer(): KafkaProducer<ByteArray, ByteArray> {
+    private fun createKafkaProducer(): KafkaProducer<ByteArray, ByteArray> {
         val props = Properties()
         props[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = KAFKA_BOOTSTRAP
         props[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = ByteArraySerializer::class.java.name
         props[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = ByteArraySerializer::class.java.name
-        props[ProducerConfig.BATCH_SIZE_CONFIG] = 32 * 1024
-        props[ProducerConfig.LINGER_MS_CONFIG] = 20
+        props[ProducerConfig.BATCH_SIZE_CONFIG] = 64 * 1024
+        props[ProducerConfig.LINGER_MS_CONFIG] = 10
         props[ProducerConfig.COMPRESSION_TYPE_CONFIG] = "zstd"
+        props[ProducerConfig.ACKS_CONFIG] = "1"
         return KafkaProducer(props)
-    }
-
-    fun encodeScore(score: Int): ByteArray {
-        val clamped = score.coerceIn(-1000, 1000)
-        return byteArrayOf((clamped shr 8).toByte(), (clamped and 0xFF).toByte())
-    }
-
-    fun truncateKafkaTopic() {
-        val props = Properties()
-        props["bootstrap.servers"] = KAFKA_BOOTSTRAP
-        AdminClient.create(props).use { admin ->
-            admin.deleteTopics(listOf(KAFKA_TOPIC)).all().get()
-            admin.createTopics(listOf(NewTopic(KAFKA_TOPIC, 1, 1))).all().get()
-            println("🗑️  Kafka topic '$KAFKA_TOPIC' truncated and recreated.")
-        }
     }
 }

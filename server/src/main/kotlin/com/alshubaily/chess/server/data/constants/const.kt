@@ -1,6 +1,7 @@
 package com.alshubaily.chess.server.data.constants
 
-const val REMOTE_URL = "https://database.lichess.org/lichess_db_eval.jsonl.zst"
+const val DATASET_PATH = "datasets/lichess_db_eval.jsonl.zst"
+//const val REMOTE_URL = "https://database.lichess.org/lichess_db_eval.jsonl.zst"
 
 const val JDBC_URL = "jdbc:postgresql://localhost:5432/chess_evaluations"
 const val TABLE_NAME = "lichess_evaluations"
