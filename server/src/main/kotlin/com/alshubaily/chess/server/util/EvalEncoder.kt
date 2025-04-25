@@ -4,10 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode
 
 object EvalEncoder {
 
-    /**
-     * Extracts the best score and encodes board + score as Kafka-ready payloads.
-     * Returns null if no valid evaluation exists.
-     */
     fun encodeFromJson(node: JsonNode): Pair<ByteArray, ByteArray>? {
         val fen = node["fen"]?.asText() ?: return null
         val evals = node["evals"] ?: return null
@@ -18,8 +14,11 @@ object EvalEncoder {
 
         val bestPv = pvs[0]
         val score = when {
-            bestPv.has("cp") -> bestPv["cp"].asInt().coerceIn(-1000, 1000)
-            bestPv.has("mate") -> if (bestPv["mate"].asInt() > 0) 1000 else -1000
+            bestPv.has("cp") -> normalizeCp(bestPv["cp"].asInt())
+            bestPv.has("mate") -> {
+                val mate = bestPv["mate"].asInt()
+                if (mate > 0) 1.0f else -1.0f
+            }
             else -> return null
         }
 
@@ -28,8 +27,13 @@ object EvalEncoder {
         return boardBytes to scoreBytes
     }
 
-    private fun encodeScore(score: Int): ByteArray {
-        val clamped = score.coerceIn(-1000, 1000)
-        return byteArrayOf((clamped shr 8).toByte(), (clamped and 0xFF).toByte())
+    private fun normalizeCp(cp: Int): Float {
+        return cp.coerceIn(-50, 50) / 100f
+    }
+
+    private fun encodeScore(score: Float): ByteArray {
+        val clamped = score.coerceIn(-1.0f, 1.0f)
+        val int16 = (clamped * Short.MAX_VALUE).toInt().coerceIn(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt())
+        return byteArrayOf((int16 shr 8).toByte(), (int16 and 0xFF).toByte())
     }
 }

@@ -38,4 +38,5 @@ out/
 
 ### Kotlin ###
 .kotlin
-/datasets/
+**/datasets/
+**/__pycache__

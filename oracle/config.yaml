@@ -1,0 +1,7 @@
+kafka:
+  bootstrap_servers: "localhost:9092"
+  topic: "chess-evaluations"
+
+training:
+  batch_size: 64
+  epochs: 5
