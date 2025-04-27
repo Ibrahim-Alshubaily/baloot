@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Chessboard } from "react-chessboard";
 
+const INIT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 interface Move {
     from: string;
     to: string;
@@ -11,18 +12,12 @@ interface MakeMoveResponse {
     opponentMove: Move | null;
 }
 
-async function fetchLegalMoves(fen: string): Promise<Move[]> {
-    const res = await fetch(`http://localhost:8080/chess/legal-moves?fen=${encodeURIComponent(fen)}`, {
-        method: "GET",
-    });
-    return res.json();
-}
 
 async function makeMove(fen: string, move: Move): Promise<MakeMoveResponse> {
     const res = await fetch("http://localhost:8080/chess/make-move", {
         method: "POST",
-        headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify({ fen, move }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fen, move: move.from + move.to }),
     });
     return res.json();
 }
@@ -34,19 +29,8 @@ function getBoardSize() {
 }
 
 export default function ChessGame() {
-    const [fen, setFen] = useState("start");
-    const [legalMoves, setLegalMoves] = useState<Move[]>([]);
+    const [fen, setFen] = useState(INIT_FEN);
     const [boardSize, setBoardSize] = useState(getBoardSize());
-
-    useEffect(() => {
-        if (fen === "start") {
-            fetchLegalMoves("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-                .then(setLegalMoves);
-        } else {
-            fetchLegalMoves(fen)
-                .then(setLegalMoves);
-        }
-    }, [fen]);
 
     useEffect(() => {
         function handleResize() {
