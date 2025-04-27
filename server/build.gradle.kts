@@ -49,6 +49,10 @@ kotlin {
     }
 }
 
+springBoot {
+    mainClass.set("com.alshubaily.chess.server.ServerApplicationKt")
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }

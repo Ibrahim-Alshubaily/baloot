@@ -41,7 +41,24 @@ fun shift(bb: Long, amount: Int): Long =
     }
 
 fun index(file: Char, rank: Int): Int {
-    require(file in 'A'..'H') { "Invalid file: $file" }
-    require(rank in 1..8) { "Invalid rank: $rank" }
     return (rank - 1) * 8 + (file.uppercaseChar() - 'A')
+}
+
+fun pieceAt(board: Bitboards, square: Int): Char? {
+    val bit = 1L shl square
+    return when {
+        board.whitePawns and bit != 0L -> 'P'
+        board.whiteKnights and bit != 0L -> 'N'
+        board.whiteBishops and bit != 0L -> 'B'
+        board.whiteRooks and bit != 0L -> 'R'
+        board.whiteQueens and bit != 0L -> 'Q'
+        board.whiteKing and bit != 0L -> 'K'
+        board.blackPawns and bit != 0L -> 'p'
+        board.blackKnights and bit != 0L -> 'n'
+        board.blackBishops and bit != 0L -> 'b'
+        board.blackRooks and bit != 0L -> 'r'
+        board.blackQueens and bit != 0L -> 'q'
+        board.blackKing and bit != 0L -> 'k'
+        else -> null
+    }
 }

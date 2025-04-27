@@ -1,5 +1,8 @@
 package com.alshubaily.chess.server.util
 
+import com.alshubaily.chess.server.model.CastlingRight
+import com.alshubaily.chess.server.model.GameState
+import com.alshubaily.chess.server.model.Player
 import kotlin.experimental.or
 
 object FenEncoder {
@@ -85,4 +88,57 @@ object FenEncoder {
             }
         }
     }
+
+
+
+    fun encode(state: GameState): String {
+        val board = state.board
+        val builder = StringBuilder()
+
+        for (rank in 7 downTo 0) {
+            var empty = 0
+            for (file in 0 until 8) {
+                val square = rank * 8 + file
+                val piece = pieceAt(board, square)
+
+                if (piece != null) {
+                    if (empty > 0) {
+                        builder.append(empty)
+                        empty = 0
+                    }
+                    builder.append(piece)
+                } else {
+                    empty++
+                }
+            }
+            if (empty > 0) builder.append(empty)
+            if (rank > 0) builder.append('/')
+        }
+
+        val turn = if (state.currentPlayer == Player.WHITE) "w" else "b"
+        val castling = encodeCastlingRights(state.castlingRights)
+        val enPassant = encodeEnPassant(state.enCroissantSquare)
+
+        return "$builder $turn $castling $enPassant 0 1"
+    }
+
+    private fun encodeCastlingRights(castlingRights: Set<CastlingRight>): String {
+        if (castlingRights.isEmpty()) return "-"
+        val builder = StringBuilder()
+        if (CastlingRight.WHITE_KINGSIDE in castlingRights) builder.append('K')
+        if (CastlingRight.WHITE_QUEENSIDE in castlingRights) builder.append('Q')
+        if (CastlingRight.BLACK_KINGSIDE in castlingRights) builder.append('k')
+        if (CastlingRight.BLACK_QUEENSIDE in castlingRights) builder.append('q')
+        return builder.toString()
+    }
+
+    private fun encodeEnPassant(enCroissantSquare: Int?): String {
+        if (enCroissantSquare == null) return "-"
+        val file = enCroissantSquare % 8
+        val rank = enCroissantSquare / 8
+        val fileChar = "abcdefgh"[file]
+        val rankChar = "12345678"[rank]
+        return "$fileChar$rankChar"
+    }
+
 }
