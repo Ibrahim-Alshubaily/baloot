@@ -5,3 +5,5 @@ kafka:
 training:
   batch_size: 64
   epochs: 5
+  checkpoint_dir: "oracle/checkpoints"
+

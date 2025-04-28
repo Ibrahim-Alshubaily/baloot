@@ -1,18 +1,26 @@
 package com.alshubaily.chess.server.controller
 
-import com.alshubaily.chess.server.model.Move
+import com.alshubaily.chess.server.player.MachineLearningPlayer
 import com.alshubaily.chess.server.service.ChessService
 import org.springframework.web.bind.annotation.*
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 
 @RestController
 @RequestMapping("/chess")
-class ChessController(private val chessService: ChessService) {
+class ChessController(
+    private val chessService: ChessService,
+    private val machineLearningPlayer: MachineLearningPlayer
+) {
 
     @PostMapping("/make-move")
     fun makeMove(@RequestBody moveRequest: MoveRequest): MoveResponse {
-        return chessService.makeMove(moveRequest)
+        val afterUserMove = chessService.makeMove(moveRequest).newFen
+        val machineMove = machineLearningPlayer.selectBestMove(afterUserMove)
+        return  chessService.makeMove(
+            MoveRequest(
+                fen = afterUserMove,
+                move = machineMove
+            )
+        )
     }
 }
 

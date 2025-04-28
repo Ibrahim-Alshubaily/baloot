@@ -141,4 +141,15 @@ object FenEncoder {
         return "$fileChar$rankChar"
     }
 
+
+    fun encodeBoardFeaturesToFloats(fen: String): List<Float> {
+        return encodeBoardFeatures(fen)
+            .flatMap { byte ->
+                (0 until 8).map { bit ->
+                    ((byte.toInt() shr bit) and 1).toFloat()
+                }
+            }
+            .take(781)
+    }
+
 }
